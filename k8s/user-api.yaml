@@ -2,9 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-api
-  namespace: games-fiap
+  namespace: fiapgames
+  labels:
+    app: user-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: user-api
@@ -19,43 +21,9 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-          env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: Production
-            - name: Database__MigrateOnStartup
-              value: "false"
-            - name: SA_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sqlserver-secret
-                  key: SA_PASSWORD
-            - name: ConnectionStrings__SqlServer
-              value: "Server=sqlserver,1433;Database=UserGamesFiap;User Id=sa;Password=$(SA_PASSWORD);TrustServerCertificate=True;Encrypt=False"
-            - name: Jwt__Issuer
-              value: User.Games.Fiap
-            - name: Jwt__Audience
-              value: Games.Fiap
-            - name: Jwt__AccessTokenMinutes
-              value: "15"
-            - name: Jwt__RefreshTokenDays
-              value: "7"
-            - name: RabbitMq__HostName
-              value: rabbitmq
-            - name: RabbitMq__Port
-              value: "5672"
-            - name: RabbitMq__VirtualHost
-              value: /
-            - name: RabbitMq__UserName
-              valueFrom:
-                secretKeyRef:
-                  name: rabbitmq-secret
-                  key: RABBITMQ_DEFAULT_USER
-            - name: RabbitMq__Password
-              valueFrom:
-                secretKeyRef:
-                  name: rabbitmq-secret
-                  key: RABBITMQ_DEFAULT_PASS
           envFrom:
+            - configMapRef:
+                name: user-api-config
             - secretRef:
                 name: user-api-secret
           readinessProbe:
@@ -70,12 +38,21 @@ spec:
               port: 8080
             initialDelaySeconds: 20
             periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: user-api
-  namespace: games-fiap
+  namespace: fiapgames
+  labels:
+    app: user-api
 spec:
   selector:
     app: user-api

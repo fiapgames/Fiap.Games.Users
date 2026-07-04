@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: user-api-migrate
-  namespace: games-fiap
+  namespace: fiapgames
 spec:
   backoffLimit: 4
   template:
@@ -13,22 +13,8 @@ spec:
           image: user-games-fiap:latest
           imagePullPolicy: IfNotPresent
           args: ["--migrate"]
-          env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: Production
-            - name: SA_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: sqlserver-secret
-                  key: SA_PASSWORD
-            - name: ConnectionStrings__SqlServer
-              value: "Server=sqlserver,1433;Database=UserGamesFiap;User Id=sa;Password=$(SA_PASSWORD);TrustServerCertificate=True;Encrypt=False"
-            - name: Jwt__SecretKey
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secret
-                  key: Jwt__SecretKey
-            - name: Jwt__Issuer
-              value: User.Games.Fiap
-            - name: Jwt__Audience
-              value: Games.Fiap
+          envFrom:
+            - configMapRef:
+                name: user-api-config
+            - secretRef:
+                name: user-api-secret

@@ -1,6 +1,0 @@
-resources:
-  - 00-namespace.yaml
-  - sqlserver.yaml
-  - rabbitmq.yaml
-  - user-api-secret.yaml
-  - user-api.yaml
