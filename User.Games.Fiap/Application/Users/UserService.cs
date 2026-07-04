@@ -1,10 +1,10 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using FiapGames.Contracts.IntegrationEvents;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using User.Games.Fiap.Application.Common;
-using User.Games.Fiap.Contracts.Events;
 using User.Games.Fiap.Infrastructure.Repositories;
 using UserEntity = User.Games.Fiap.Domain.Entities.User;
 
@@ -45,8 +45,7 @@ public sealed class UserService(
             user.Id,
             user.Nome,
             user.Email,
-            user.CreatedAt,
-            DateTimeOffset.UtcNow), cancellationToken);
+            user.CreatedAt.UtcDateTime), cancellationToken);
 
         try
         {

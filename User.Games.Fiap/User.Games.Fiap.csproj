@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="FiapGames.Contracts" Version="1.2.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.0" />

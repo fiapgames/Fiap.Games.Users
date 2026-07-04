@@ -1,6 +1,6 @@
+using FiapGames.Contracts.Requests.User;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using User.Games.Fiap.Contracts.Events;
 using User.Games.Fiap.Infrastructure.Repositories;
 
 namespace User.Games.Fiap.Consumers;
@@ -19,12 +19,12 @@ public sealed class UserLookupRequestedConsumer(IUnitOfWork unitOfWork) : IConsu
             })
             .FirstOrDefaultAsync(context.CancellationToken);
 
-        await context.Publish(new UserLookupResponded(
+        await context.RespondAsync(new UserLookupResponded(
             context.Message.CorrelationId,
             context.Message.UserId,
             user is not null,
             user?.Nome,
             user?.Email,
-            DateTimeOffset.UtcNow), context.CancellationToken);
+            DateTimeOffset.UtcNow));
     }
 }
