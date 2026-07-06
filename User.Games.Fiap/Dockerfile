@@ -6,7 +6,6 @@ ENV ASPNETCORE_URLS=http://+:8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["NuGet.Config", "."]
-COPY ["local-packages/", "local-packages/"]
 COPY ["User.Games.Fiap.csproj", "."]
 RUN dotnet restore "User.Games.Fiap.csproj"
 COPY . .
