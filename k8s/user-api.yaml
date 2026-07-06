@@ -15,6 +15,17 @@ spec:
       labels:
         app: user-api
     spec:
+      initContainers:
+        - name: wait-for-sqlserver-users
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z -w 2 sqlserver-users.fiapgames.svc.cluster.local 1433; do
+                echo "waiting for sqlserver-users..."
+                sleep 2
+              done
       containers:
         - name: user-api
           image: user-games-fiap:latest

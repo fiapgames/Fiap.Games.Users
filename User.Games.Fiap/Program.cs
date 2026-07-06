@@ -55,6 +55,14 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddProblemDetails();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHealthChecks();
+
+const string DevCorsPolicy = "DevCors";
+builder.Services.AddCors(options =>
+{
+    // The frontend (Vite dev server) calls this API directly, cross-origin, in dev.
+    options.AddPolicy(DevCorsPolicy, policy =>
+        policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod());
+});
 builder.Services.AddDataProtection()
     .SetApplicationName("User.Games.Fiap")
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")));
@@ -187,6 +195,7 @@ if (app.Configuration.GetValue("Database:MigrateOnStartup", false))
 }
 
 app.UseRouting();
+app.UseCors(DevCorsPolicy);
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
