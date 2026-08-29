@@ -17,6 +17,7 @@ using User.Games.Fiap.Configuration;
 using User.Games.Fiap.Consumers;
 using User.Games.Fiap.Infrastructure.Auth;
 using User.Games.Fiap.Infrastructure.Data;
+using User.Games.Fiap.Infrastructure.Notifications;
 using User.Games.Fiap.Infrastructure.Repositories;
 using UserEntity = User.Games.Fiap.Domain.Entities.User;
 
@@ -166,6 +167,19 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPasswordHasher<UserEntity>, PasswordHasher<UserEntity>>();
+
+// Notificações agora são servidas pela Azure Function serverless, via HTTP.
+builder.Services.AddHttpClient<INotificationsClient, NotificationsClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Notifications:BaseUrl"]!.TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+
+    var functionKey = builder.Configuration["Notifications:FunctionKey"];
+    if (!string.IsNullOrWhiteSpace(functionKey))
+    {
+        client.DefaultRequestHeaders.Add("x-functions-key", functionKey);
+    }
+});
 
 var app = builder.Build();
 
