@@ -1,10 +1,10 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FiapGames.Contracts.IntegrationEvents;
-using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using User.Games.Fiap.Application.Common;
+using User.Games.Fiap.Infrastructure.Notifications;
 using User.Games.Fiap.Infrastructure.Repositories;
 using UserEntity = User.Games.Fiap.Domain.Entities.User;
 
@@ -13,7 +13,7 @@ namespace User.Games.Fiap.Application.Users;
 public sealed class UserService(
     IUnitOfWork unitOfWork,
     IPasswordHasher<UserEntity> passwordHasher,
-    IPublishEndpoint publishEndpoint,
+    INotificationsClient notificationsClient,
     IMapper mapper) : IUserService
 {
     private const int MaxPageSize = 100;
@@ -41,12 +41,6 @@ public sealed class UserService(
 
         await unitOfWork.Users.AddAsync(user, cancellationToken);
 
-        await publishEndpoint.Publish(new UserCreatedEvent(
-            user.Id,
-            user.Nome,
-            user.Email,
-            user.CreatedAt.UtcDateTime), cancellationToken);
-
         try
         {
             await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -55,6 +49,14 @@ public sealed class UserService(
         {
             return ServiceResult<UserResponse>.Conflict("A user with this email already exists.");
         }
+
+        // Notifica depois de persistir: a chamada agora sai da aplicação (HTTP),
+        // e não pode anunciar um usuário cujo insert falhou.
+        await notificationsClient.SendUserCreatedAsync(new UserCreatedEvent(
+            user.Id,
+            user.Nome,
+            user.Email,
+            user.CreatedAt.UtcDateTime), cancellationToken);
 
         return ServiceResult<UserResponse>.Created(mapper.Map<UserResponse>(user));
     }
