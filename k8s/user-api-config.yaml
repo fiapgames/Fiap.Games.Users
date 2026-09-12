@@ -15,3 +15,7 @@ data:
   Jwt__Audience: "Games.Fiap"
   Jwt__AccessTokenMinutes: "15"
   Jwt__RefreshTokenDays: "7"
+  # Só o e-mail de "usuário cadastrado" virou serverless (Azure Function); o
+  # RabbitMq acima continua em uso para os demais eventos. A chave fica no
+  # Secret, nunca aqui.
+  Notifications__BaseUrl: "https://fiap-games-notification-hdaza0g6fudjc3ak.westus3-01.azurewebsites.net"
