@@ -12,5 +12,5 @@ public sealed class RabbitMqOptions
 
     public string UserName { get; set; } = "guest";
 
-    public string Password { get; set; } = "guest";
+    public string Password { get; set; } = string.Empty;
 }
